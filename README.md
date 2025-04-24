@@ -1,0 +1,2 @@
+# plataformaComunicacao
+Plataforma de comunicação
