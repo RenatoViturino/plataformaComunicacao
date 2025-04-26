@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS agendamento_db;
+USE agendamento_db;
+
+CREATE TABLE agendamentos (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    data_hora_envio DATETIME NOT NULL,
+    destinatario VARCHAR(255) NOT NULL,
+    mensagem TEXT NOT NULL,
+    tipo VARCHAR(20) NOT NULL, -- EMAIL, SMS, PUSH, WHATSAPP
+    status VARCHAR(20) NOT NULL -- AGENDADO, ENVIADO, FALHA
+);
