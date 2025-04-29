@@ -6,10 +6,7 @@ import com.luizalabs.plataformacomunicacao.service.AgendamentoRepository;
 import com.luizalabs.plataformacomunicacao.tipo.StatusComunicacao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/agendamentos")
@@ -31,4 +28,20 @@ public class AgendamentoController {
         Agendamento salvo = repository.save(agendamento);
         return ResponseEntity.ok(salvo);
     }
+    @GetMapping("/consultar/{id}")
+    public ResponseEntity<Agendamento> consultarStatus(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> removerAgendamento(@PathVariable Long id) {
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
