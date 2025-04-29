@@ -18,8 +18,7 @@ public class AgendamentoController {
 
     private final AgendamentoRepository repository;
 
-
-    @PostMapping
+    @PostMapping("/agendar")
     public ResponseEntity<Agendamento> agendarComunicacao(@RequestBody AgendamentoRequest request) {
         Agendamento agendamento = Agendamento.builder()
                 .dataHoraEnvio(request.getDataHoraEnvio())
