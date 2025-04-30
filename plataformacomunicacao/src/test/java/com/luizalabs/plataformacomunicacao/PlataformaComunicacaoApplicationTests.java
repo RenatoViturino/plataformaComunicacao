@@ -58,7 +58,6 @@ class PlataformaComunicacaoApplicationTests {
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
 		assertEquals(400, response.getStatusCodeValue());
 	}
-
 	@Test
 	void deveRetornarErroQuandoRepositorioFalhar() {
 
@@ -80,14 +79,47 @@ class PlataformaComunicacaoApplicationTests {
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
 		assertEquals(400, response.getStatusCodeValue());
 	}
-
 	@Test
 	void naoDeveAgendarComMensagemVazia() {
 		request.setMensagem("");
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
 		assertEquals(400, response.getStatusCodeValue());
 	}
+	@Test
+	void deveConsultarAgendamentoExistente() {
+		when(repository.findById(1L)).thenReturn(Optional.of(agendamento));
 
+		ResponseEntity<Agendamento> response = controller.consultarStatus(1L);
 
+		assertEquals(200, response.getStatusCodeValue());
+		assertEquals(agendamento.getId(), response.getBody().getId());
+	}
+	@Test
+	void deveRetornarNotFoundAoConsultarAgendamentoInexistente() {
+		when(repository.findById(999L)).thenReturn(Optional.empty());
+
+		ResponseEntity<Agendamento> response = controller.consultarStatus(999L);
+
+		assertEquals(404, response.getStatusCodeValue());
+	}
+	@Test
+	void deveRemoverAgendamentoExistente() {
+		when(repository.existsById(1L)).thenReturn(true);
+		doNothing().when(repository).deleteById(1L);
+
+		ResponseEntity<Void> response = controller.removerAgendamento(1L);
+
+		assertEquals(204, response.getStatusCodeValue());
+		verify(repository).deleteById(1L);
+	}
+	@Test
+	void deveRetornarNotFoundAoRemoverAgendamentoInexistente() {
+		when(repository.existsById(999L)).thenReturn(false);
+
+		ResponseEntity<Void> response = controller.removerAgendamento(999L);
+
+		assertEquals(404, response.getStatusCodeValue());
+		verify(repository, never()).deleteById(anyLong());
+	}
 }
 
