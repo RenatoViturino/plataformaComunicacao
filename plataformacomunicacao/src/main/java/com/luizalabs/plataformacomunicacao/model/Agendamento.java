@@ -1,8 +1,8 @@
-package com.luizalabs.plataformacomunicacao.model;
+package model;
 
 
-import com.luizalabs.plataformacomunicacao.tipo.StatusComunicacao;
-import com.luizalabs.plataformacomunicacao.tipo.TipoComunicacao;
+import enums.StatusComunicacao;
+import enums.TipoComunicacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

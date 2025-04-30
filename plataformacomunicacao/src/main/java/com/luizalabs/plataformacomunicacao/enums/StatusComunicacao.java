@@ -1,4 +1,4 @@
-package com.luizalabs.plataformacomunicacao.tipo;
+package enums;
 
 public enum StatusComunicacao {
     AGENDADO,

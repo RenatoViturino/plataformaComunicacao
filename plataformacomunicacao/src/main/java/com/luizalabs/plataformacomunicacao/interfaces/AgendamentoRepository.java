@@ -1,6 +1,6 @@
-package com.luizalabs.plataformacomunicacao.service;
+package interfaces;
 
-import com.luizalabs.plataformacomunicacao.model.Agendamento;
+import model.Agendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {}

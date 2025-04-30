@@ -14,6 +14,9 @@ class PlataformaComunicacaoApplicationTests {
 
 	private AgendamentoRequest request;
 
+	@Autowired
+	private AgendamentoService service;
+
 	@BeforeEach
 	void setUp() {
 		request = new AgendamentoRequest();
