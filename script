@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS agendamento_db;
-USE agendamento_db;
+CREATE DATABASE IF NOT EXISTS plataforma_comunicacao;
+USE plataforma_comunicacao;
 
 CREATE TABLE agendamentos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
