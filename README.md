@@ -58,5 +58,20 @@ Você pode rodar o projeto pelo Maven ou Gradle. Por exemplo, com Maven:
 ```
 Depois disso, a aplicação vai estar disponível em http://localhost:8080
 
+⚙️ Rodando os Testes
 
+Para executar os testes unitários, use:
+
+Com Maven:
+```bash
+./mvnw test
+```
+
+📚 Documentação da API
+
+Se você tiver o Swagger configurado, dá uma olhada na documentação interativa dos endpoints em:
+```bash
+http://localhost:8080/swagger-ui.html
+```
+Ou teste pelo postman ou insomnia, vai que  ne ^^ 
 
