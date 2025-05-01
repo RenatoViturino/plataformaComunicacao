@@ -1,11 +1,25 @@
-package com.luizalabs.plataformacomunicacao;
+package java.com.luizalabs.plataformacomunicacao;
 
+import controllers.AgendamentoController;
+import dto.AgendamentoRequest;
+import enums.StatusComunicacao;
+import enums.TipoComunicacao;
+import interfaces.AgendamentoRepository;
+import model.Agendamento;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class PlataformaComunicacaoApplicationTests {
-
 	@Mock
 	private AgendamentoRepository agendamentoRepository;
 
@@ -13,9 +27,6 @@ class PlataformaComunicacaoApplicationTests {
 	private AgendamentoController agendamentoController;
 
 	private AgendamentoRequest request;
-
-	@Autowired
-	private AgendamentoService service;
 
 	@BeforeEach
 	void setUp() {
@@ -25,8 +36,9 @@ class PlataformaComunicacaoApplicationTests {
 		request.setMensagem("Olá! Seu Agendamento foi concluido");
 		request.setTipo(TipoComunicacao.EMAIL);
 	}
+
 	@Test
-	void deveAgendarComunicacao() {
+	void deveAgendarComunicacao_quandoRequestValido() {
 		Agendamento agendamentoEsperado = Agendamento.builder()
 				.id(1L)
 				.dataHoraEnvio(request.getDataHoraEnvio())
@@ -35,94 +47,98 @@ class PlataformaComunicacaoApplicationTests {
 				.tipo(request.getTipo())
 				.status(StatusComunicacao.AGENDADO)
 				.build();
-
-
 		when(agendamentoRepository.save(any(Agendamento.class))).thenReturn(agendamentoEsperado);
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(200, response.getStatusCodeValue());
-		assertNotNull(response.getBody());
-		assertEquals(1L, response.getBody().getId());
-		assertEquals("reviturino@gmail.com", response.getBody().getDestinatario());
-		assertEquals(StatusComunicacao.AGENDADO, response.getBody().getStatus());
-
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getId()).isEqualTo(1L);
+		assertThat(response.getBody().getDestinatario()).isEqualTo("reviturino@gmail.com");
+		assertThat(response.getBody().getStatus()).isEqualTo(StatusComunicacao.AGENDADO);
 		verify(agendamentoRepository, times(1)).save(any(Agendamento.class));
 	}
+
 	@Test
 	void naoDeveAgendarComDataNoPassado() {
-
 		request.setDataHoraEnvio(LocalDateTime.now().minusDays(1));
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(400, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
 	}
+
 	@Test
 	void naoDeveAgendarComDestinatarioVazio() {
-
 		request.setDestinatario("");
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(400, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
 	}
+
 	@Test
 	void deveRetornarErroQuandoRepositorioFalhar() {
-
-		when(agendamentoRepository.save(any(Agendamento.class))).thenThrow(new RuntimeException("Erro no banco"));
+		when(agendamentoRepository.save(any(Agendamento.class)))
+				.thenThrow(new RuntimeException("Erro no banco"));
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(500, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(500);
 	}
+
 	@Test
 	void naoDeveAgendarComTipoInvalido() {
-
 		request.setTipo(null);
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(400, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
 	}
+
 	@Test
 	void naoDeveAgendarComDataHoraEnvioNula() {
-
 		request.setDataHoraEnvio(null);
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(400, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
 	}
+
 	@Test
 	void naoDeveAgendarComMensagemVazia() {
 		request.setMensagem("");
 		ResponseEntity<Agendamento> response = agendamentoController.agendarComunicacao(request);
-		assertEquals(400, response.getStatusCodeValue());
+		assertThat(response.getStatusCodeValue()).isEqualTo(400);
 	}
+
 	@Test
 	void deveConsultarAgendamentoExistente() {
-		when(repository.findById(1L)).thenReturn(Optional.of(agendamento));
-
-		ResponseEntity<Agendamento> response = controller.consultarStatus(1L);
-
-		assertEquals(200, response.getStatusCodeValue());
-		assertEquals(agendamento.getId(), response.getBody().getId());
+		Agendamento agendamento = Agendamento.builder()
+				.id(1L)
+				.dataHoraEnvio(request.getDataHoraEnvio())
+				.destinatario(request.getDestinatario())
+				.mensagem(request.getMensagem())
+				.tipo(request.getTipo())
+				.status(StatusComunicacao.AGENDADO)
+				.build();
+		when(agendamentoRepository.findById(1L)).thenReturn(Optional.of(agendamento));
+		ResponseEntity<Agendamento> response = agendamentoController.consultarStatus(1L);
+		assertThat(response.getStatusCodeValue()).isEqualTo(200);
+		assertThat(response.getBody()).isNotNull();
+		assertThat(response.getBody().getId()).isEqualTo(1L);
 	}
+
 	@Test
 	void deveRetornarNotFoundAoConsultarAgendamentoInexistente() {
-		when(repository.findById(999L)).thenReturn(Optional.empty());
-
-		ResponseEntity<Agendamento> response = controller.consultarStatus(999L);
-
-		assertEquals(404, response.getStatusCodeValue());
+		when(agendamentoRepository.findById(999L)).thenReturn(Optional.empty());
+		ResponseEntity<Agendamento> response = agendamentoController.consultarStatus(999L);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
 	}
+
 	@Test
 	void deveRemoverAgendamentoExistente() {
-		when(repository.existsById(1L)).thenReturn(true);
-		doNothing().when(repository).deleteById(1L);
-
-		ResponseEntity<Void> response = controller.removerAgendamento(1L);
-
-		assertEquals(204, response.getStatusCodeValue());
-		verify(repository).deleteById(1L);
+		when(agendamentoRepository.existsById(1L)).thenReturn(true);
+		doNothing().when(agendamentoRepository).deleteById(1L);
+		ResponseEntity<Void> response = agendamentoController.removerAgendamento(1L);
+		assertThat(response.getStatusCodeValue()).isEqualTo(204);
+		verify(agendamentoRepository, times(1)).deleteById(1L);
 	}
+
 	@Test
 	void deveRetornarNotFoundAoRemoverAgendamentoInexistente() {
-		when(repository.existsById(999L)).thenReturn(false);
-
-		ResponseEntity<Void> response = controller.removerAgendamento(999L);
-
-		assertEquals(404, response.getStatusCodeValue());
-		verify(repository, never()).deleteById(anyLong());
+		when(agendamentoRepository.existsById(999L)).thenReturn(false);
+		ResponseEntity<Void> response = agendamentoController.removerAgendamento(999L);
+		assertThat(response.getStatusCodeValue()).isEqualTo(404);
+		verify(agendamentoRepository, never()).deleteById(anyLong());
 	}
 }
 
